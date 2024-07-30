@@ -9,7 +9,7 @@
 
     - name: Start and Enable nginx service
       ansible.builtin.service:
-        name: backend
+        name: nginx
         state: reloaded
         enabled: true
 
@@ -34,7 +34,7 @@
         src: expense.conf
         dest: /etc/nginx/default.d/expense.conf
 
-    - name: Restart backend service
+    - name: Restart nginx service
       ansible.builtin.service:
-        name: backend
+        name: nginx
         state: restarted
