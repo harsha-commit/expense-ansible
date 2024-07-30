@@ -1,5 +1,5 @@
 - name: Configure DB Server
-  hosts: all
+  hosts: db
   become: true
   vars:
     login_user: root
@@ -10,11 +10,18 @@
       ansible.builtin.dnf:
         name: mysql-server
         state: latest
+
     - name: Start and Enable service mysqld
       ansible.builtin.service:
         name: mysqld
         state: started
         enabled: true
+
+    - name: Install PyMySQL python package
+      ansible.builtin.pip:
+        name: PyMySQL
+        executable: pip3.9
+
     - name: Check if root password is already set
       community.mysql.mysql_info:
         login_user: { { login_user } }
@@ -24,6 +31,11 @@
           - version
         register: mysql_output
         ignore_errors: true
+
     - name: Print output of MySQL Connection
       ansible.builtin.debug:
         msg: "Output: {{mysql_output}}"
+
+    - name: Change MySQL password if not set
+      ansible.builtin.command: "mysql_secure_installation --set-root-pass {{login_password}}"
+      when: mysql_output.failed is true

@@ -1,0 +1,78 @@
+- name: Configure Backend Server
+  hosts: backend
+  become: true
+  vars:
+    login_user: root
+    login_password: ExpenseApp1
+    login_host: db.harshadevops.site
+  tasks:
+    - name: Disable default NodeJS version
+      ansible.builtin.command: dnf module disable nodejs -y
+
+    - name: Enable NodeJS version 20
+      ansible.builtin.command: dnf module enable nodejs:20 -y
+
+    - name: Install NodeJS
+      ansible.builtin.dnf:
+        name: nodejs
+        state: installed
+
+    - name: Create user expense
+      ansible.builtin.user:
+        name: expense
+
+    - name: Create app directory
+      ansible.builtin.file:
+        path: /app
+        state: directory
+
+    - name: Download backend code file
+      ansible.builtin.get_url:
+        url: https://expense-builds.s3.us-east-1.amazonaws.com/expense-backend-v2.zip
+        dest: /tmp/backend.zip
+
+    - name: Unzip backend code file
+      ansible.builtin.unarchive:
+        src: /tmp/backend.zip
+        dest: /app
+        remote_src: true
+
+    - name: Install npm dependencies
+      ansible.builtin.command: npm install
+      chdir: /app
+
+    - name: Copy Backend service code
+      ansible.builtin.copy:
+        src: backend.service
+        dest: /etc/systemd/system/backend.service
+
+    - name: Start and Enable backend service
+      ansible.builtin.systemd_service:
+        name: backend
+        state: reloaded
+        enabled: true
+        daemon_reload: true
+
+    - name: Install PyMySQL python package
+      ansible.builtin.pip:
+        name: PyMySQL
+        executable: pip3.9
+
+    - name: Install mysql
+      ansible.builtin.dnf:
+        name: mysql
+        state: installed
+
+    - name: Upload schema to MySQL database
+      mysql_db:
+        state: import
+        name: mysql_schema
+        target: /app/schema/backend.sql
+        login_user: { { login_user } }
+        login_password: { { login_password } }
+        login_host: { { login_host } }
+
+    - name: Restart backend service
+      ansible.builtin.service:
+        name: backend
+        state: restarted
