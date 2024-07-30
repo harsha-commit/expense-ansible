@@ -54,6 +54,9 @@
         enabled: true
         daemon_reload: true
 
+    - name: Reload the daemon
+      ansible.builtin.command: "systemctl daemon-reload"
+
     - name: Install PyMySQL python package
       ansible.builtin.pip:
         name:
