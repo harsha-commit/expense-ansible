@@ -1,0 +1,29 @@
+- name: Configure DB Server
+  hosts: all
+  become: true
+  vars:
+    login_user: root
+    login_password: ExpenseApp1
+    login_host: db.harshadevops.site
+  tasks:
+    - name: Install mysql-server
+      ansible.builtin.dnf:
+        name: mysql-server
+        state: latest
+    - name: Start and Enable service mysqld
+      ansible.builtin.service:
+        name: mysqld
+        state: started
+        enabled: true
+    - name: Check if root password is already set
+      community.mysql.mysql_info:
+        login_user: { { login_user } }
+        login_password: { { login_password } }
+        login_host: { { login_host } }
+        filter:
+          - version
+        register: mysql_output
+        ignore_errors: true
+    - name: Print output of MySQL Connection
+      ansible.builtin.debug:
+        msg: "Output: {{mysql_output}}"
