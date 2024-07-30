@@ -67,9 +67,9 @@
         state: installed
 
     - name: Upload schema to MySQL database
-      mysql_db:
+      community.mysql.mysql_db:
         state: import
-        name: mysql_schema
+        name: all
         target: /app/schema/backend.sql
         login_user: "{{ login_user }}"
         login_password: "{{ login_password }}"
