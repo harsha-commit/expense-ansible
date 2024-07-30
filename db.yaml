@@ -24,9 +24,9 @@
 
     - name: Check if root password is already set
       community.mysql.mysql_info:
-        login_user: { { login_user } }
-        login_password: { { login_password } }
-        login_host: { { login_host } }
+        login_user: "{{ login_user }}"
+        login_password: "{{ login_password }}"
+        login_host: "{{ login_host }}"
         filter:
           - version
         register: mysql_output

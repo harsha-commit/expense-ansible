@@ -68,9 +68,9 @@
         state: import
         name: mysql_schema
         target: /app/schema/backend.sql
-        login_user: { { login_user } }
-        login_password: { { login_password } }
-        login_host: { { login_host } }
+        login_user: "{{ login_user }}"
+        login_password: "{{ login_password }}"
+        login_host: "{{ login_host }}"
 
     - name: Restart backend service
       ansible.builtin.service:
