@@ -1,5 +1,5 @@
 - name: Configure DB Server
-  hosts: db
+  hosts: localhost
   become: true
   vars:
     login_user: root
